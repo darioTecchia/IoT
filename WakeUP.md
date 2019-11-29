@@ -1,3 +1,4 @@
+```cpp
 void setup() {
   Serial.begin(115200);
   Serial.setTimeout(2000);
@@ -18,3 +19,4 @@ void loop() {
   Serial.println("I'm awake");
   ESP.deepSleep(30e6);
 }
+```
