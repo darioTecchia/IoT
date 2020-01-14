@@ -14,6 +14,7 @@ int idDHT11intNumber = 0; //interrupt number (must be the one that use the previ
 
 int deviceID = EEPROM.read(0);
 int counter = 0;
+int analogValue = 0;
 
 void setup()
 {
@@ -45,10 +46,12 @@ void setup()
 void loop()
 {
     Serial.println("Sending to gateway");
+    analogValue = analogRead(A0);
     uint8_t data[4];
     data[0] = deviceID;
     data[1] = dht.readTemperature();
     data[2] = dht.readHumidity();
+    data[3] = analogValue;
 
     Serial.println("Device ID");
     Serial.println(data[0]);
@@ -58,6 +61,9 @@ void loop()
 
     Serial.println("Humidity");
     Serial.println(data[2]);
+    
+    Serial.println("Humidity");
+    Serial.println(data[3]);
     
     nrf24.send(data, sizeof(data));
     nrf24.waitPacketSent();
