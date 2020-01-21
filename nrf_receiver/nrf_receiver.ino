@@ -43,10 +43,24 @@ void loop() {
       nrf24.send(sdata, sizeof(sdata));
       nrf24.waitPacketSent();
 
+      int deviceID = buf[0];
       int temperature = buf[1];
-      int deviceID = buf[2];
+      int humidity = buf[2];
+      int lux = buf[3];
 
       Serial.println("--- Data retrieved from device ---");
+      Serial.print("Device ID: ");
+      Serial.println(deviceID);
+
+      Serial.print("Temperature: ");
+      Serial.println(temperature);
+
+      Serial.print("Humidity: ");
+      Serial.println(humidity);
+
+      Serial.print("Lux: ");
+      Serial.println(lux);
+
     } else {
       // no new message, turn off LED
       digitalWrite(LED, LOW);
