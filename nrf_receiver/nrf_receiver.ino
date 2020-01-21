@@ -1,19 +1,30 @@
 #include <SPI.h>
-
 #include <RH_NRF24.h>
-
 #include <Wire.h>
-
 #include <EEPROM.h>
-
 #include <ESP8266WiFi.h>
 
-String apiKey = "BN1SUH6WGG8J9NGT";
-const char * ssid = "Fimo";
-const char * password = "Fimo@!23";
+#define wifi_ssid "Fimo"
+#define wifi_password "Fimo@!23"
+
+#define mqtt_server "api.thingspeak.com"
+
+#define apiKey = "BN1SUH6WGG8J9NGT"
+
+#define MQTT_CLIENT "espsen1"
+#define MQTT_USER "user"
+#define MQTT_PWD "pass"
+
+#define humidity_topic "sensor/hum"
+#define temperature_topic "sensor/temp"
+#define lux_topic "sensor/lux"
+
+#define GATEWAY_ID = EEPROM.read(0)
+
 WiFiClient client;
+
 int gatewayID = EEPROM.read(0);
-const char * server = "api.thingspeak.com";
+
 // Singleton instance of the radio driver
 //RH_NRF24 nrf24;
 RH_NRF24 nrf24(2, 4); // use this for NodeMCU Amica/AdaFruit Huzzah ESP8266 Feather
