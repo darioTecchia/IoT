@@ -73,10 +73,10 @@ void loop() {
   uint8_t buf[RH_NRF24_MAX_MESSAGE_LEN];
   uint8_t len = sizeof(buf);
   delay(1000);
-  Going_To_Sleep(30e6);
+  goingToSleep(30e6);
 }
 
-void Going_To_Sleep(ms) {
+void goingToSleep(ms) {
   sleep_enable();                      
   attachInterrupt(0, wakeUp, LOW);     
   set_sleep_mode(SLEEP_MODE_PWR_DOWN); 
