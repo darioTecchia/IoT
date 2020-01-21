@@ -1,28 +1,21 @@
 #include <Arduino.h>
-
 #include <SPI.h>
-
 #include <RH_NRF24.h>
-
 #include "DHT.h"
-
 #include <EEPROM.h>
 
 #define DHTTYPE DHT22
 #define DHTPIN 2
+
+#define DEVICE_ID = EEPROM.read(0)
 
 // Singleton instance of the radio driver
 RH_NRF24 nrf24;
 
 DHT dht(DHTPIN, DHTTYPE);
 
-int deviceID = EEPROM.read(0);
-int counter = 0;
-int luxValue = 0;
-
 void setup() {
   Serial.begin(9600);
-  Serial.println(F("DHTxx test!"));
 
   Serial.println("Setup");
   
@@ -49,13 +42,11 @@ void setup() {
 void loop() {
   Serial.println("Sending to gateway");
   
-  luxValue = analogRead(A0);
-  
   uint8_t data[4];
-  data[0] = deviceID;
+  data[0] = DEVICE_ID;
   data[1] = dht.readTemperature();
   data[2] = dht.readHumidity();
-  data[3] = luxValue;
+  data[3] = analogRead(A0);
 
   Serial.print("Device ID: ");
   Serial.println(data[0]);
