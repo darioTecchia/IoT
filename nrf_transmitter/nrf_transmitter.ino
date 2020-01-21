@@ -4,26 +4,29 @@
 
 #include <RH_NRF24.h>
 
-#include <DHT.h>
+#include "DHT.h"
 
 #include <EEPROM.h>
+
+#define DHTTYPE DHT22
+#define DHTPIN 2
 
 // Singleton instance of the radio driver
 RH_NRF24 nrf24;
 
-DHT dht(4, DHT22, 11);
-
-int idDHT11pin = 2; //Digital pin for comunications
-int idDHT11intNumber = 0; //interrupt number (must be the one that use the previus defined pin (see table above)
+DHT dht(DHTPIN, DHTTYPE);
 
 int deviceID = EEPROM.read(0);
 int counter = 0;
-int analogValue = 0;
+int luxValue = 0;
 
 void setup() {
   Serial.begin(9600);
+  Serial.println(F("DHTxx test!"));
 
   Serial.println("Setup");
+  
+  dht.begin();
 
   while (!Serial);
 
@@ -45,23 +48,25 @@ void setup() {
 // mus be defined like this for the lib work
 void loop() {
   Serial.println("Sending to gateway");
-  analogValue = analogRead(A0);
+  
+  luxValue = analogRead(A0);
+  
   uint8_t data[4];
   data[0] = deviceID;
   data[1] = dht.readTemperature();
   data[2] = dht.readHumidity();
-  data[3] = analogValue;
+  data[3] = luxValue;
 
-  Serial.println("Device ID");
+  Serial.print("Device ID: ");
   Serial.println(data[0]);
 
-  Serial.println("Temperature");
+  Serial.print("Temperature: ");
   Serial.println(data[1]);
 
-  Serial.println("Humidity");
+  Serial.print("Humidity: ");
   Serial.println(data[2]);
 
-  Serial.println("Humidity");
+  Serial.print("Lux: ");
   Serial.println(data[3]);
 
   nrf24.send(data, sizeof(data));
