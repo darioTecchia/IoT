@@ -31,16 +31,26 @@ RH_NRF24 nrf24(2, 4); // use this for NodeMCU Amica/AdaFruit Huzzah ESP8266 Feat
 // RH_NRF24 nrf24(8, 7); // use this to be electrically compatible with Mirf
 // RH_NRF24 nrf24(8, 10);// For Leonardo, need explicit SS pi/ RH_NRF24 nrf24(8, 7); // For RFM73 on Anarduino Mini
 int LED = 5;
+
 void setup() {
   Serial.begin(9600);
   Serial.print("Receiver Started, ID: ");
   Serial.print("Connecting to ");
 
-  nrf24.init();
-  nrf24.setChannel(3);
-  nrf24.setRF(RH_NRF24::DataRate2Mbps, RH_NRF24::TransmitPower0dBm);
+  if (!nrf24.init()) {
+    Serial.println("init failed");
+  }
+  // Defaults after init are 2.402 GHz (channel 2), 2Mbps, 0dBm
+  if (!nrf24.setChannel(3)) {
+    Serial.println("setChannel failed");
+  }
+  if (!nrf24.setRF(RH_NRF24::DataRate2Mbps, RH_NRF24::TransmitPower0dBm)) {
+    Serial.println("setRF failed");
+  }
+
   pinMode(LED, OUTPUT);
 }
+
 void loop() {
   if (nrf24.available()) {
     // Should be a message for us now
