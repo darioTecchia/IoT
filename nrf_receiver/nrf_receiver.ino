@@ -1,4 +1,5 @@
 #include <SPI.h>
+#include <PubSubClient.h>
 #include <RH_NRF24.h>
 #include <Wire.h>
 #include <EEPROM.h>
@@ -22,6 +23,7 @@
 #define GATEWAY_ID = EEPROM.read(0)
 
 WiFiClient client;
+PubSubClient client(client);
 
 int gatewayID = EEPROM.read(0);
 
@@ -47,11 +49,18 @@ void setup() {
   if (!nrf24.setRF(RH_NRF24::DataRate2Mbps, RH_NRF24::TransmitPower0dBm)) {
     Serial.println("setRF failed");
   }
-
   pinMode(LED, OUTPUT);
+
+  setup_wifi();
+  client.setServer(mqtt_server, 1883);
 }
 
 void loop() {
+  if (!client.connected()) {
+    reconnect();
+  }
+  client.loop();
+
   if (nrf24.available()) {
     // Should be a message for us now
     uint8_t buf[RH_NRF24_MAX_MESSAGE_LEN];
@@ -75,16 +84,58 @@ void loop() {
 
       Serial.print("Temperature: ");
       Serial.println(temperature);
+      client.publish(temperature_topic, temperature, true);
 
       Serial.print("Humidity: ");
       Serial.println(humidity);
+      client.publish(humidity_topic, humidity, true);
 
       Serial.print("Lux: ");
       Serial.println(lux);
+      client.publish(lux_topic, lux, true);
 
     } else {
       // no new message, turn off LED
       digitalWrite(LED, LOW);
+    }
+  }
+}
+
+void setup_wifi() {
+  delay(10);
+  digitalWrite(LED_PIN, HIGH);
+  // We start by connecting to a WiFi network
+  Serial.println();
+  Serial.print("Connecting to ");
+  Serial.println(wifi_ssid);
+
+  WiFi.begin(wifi_ssid, wifi_password);
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+
+  Serial.println("");
+  Serial.println("WiFi connected");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
+  digitalWrite(LED_PIN, LOW);
+}
+
+void reconnect() {
+  // Loop until we're reconnected
+  while (!client.connected()) {
+    Serial.print("Attempting MQTT connection...");
+
+    if (client.connect(MQTT_CLIENT, MQTT_USER, MQTT_PWD)) {
+      Serial.println("connected");
+    } else {
+      Serial.print("failed, rc=");
+      Serial.print(client.state());
+      Serial.println(" try again in 5 seconds");
+      // Wait 5 seconds before retrying
+      delay(5000);
     }
   }
 }
